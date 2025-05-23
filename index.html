@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WSRP Monkey and Mentor Check-In</title>
+  <title>WSRP Student/Mentor Check-In</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 2em;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 2em; }
     .spinner {
       margin: 20px auto;
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       border: 5px solid #ccc;
       border-top-color: #007bff;
       border-radius: 50%;
@@ -23,14 +18,13 @@
   </style>
 </head>
 <body>
-  <h2>WSRP Monkey and Mentor Check-In</h2>
+  <h2>WSRP Student/Mentor Check-In</h2>
   <p id="status">Checking your location...</p>
   <div class="spinner" id="spinner"></div>
 
   <script>
-    const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbwTzllad6I0TkaIPRb0Thju5f3JeR5eAp7_xoXeoAXHdKyYnQ8DPbBr-AJjpMrXJTn5/exec';
-
+    const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
     const schoolLat = 42.06099;
     const schoolLng = -87.94404;
     const maxDistanceMeters = 100;
@@ -43,9 +37,7 @@
       const R = 6371000;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const a = Math.sin(dLat/2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) ** 2;
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c;
     }
@@ -58,13 +50,12 @@
 
       fetch(webAppUrl, {
         method: 'POST',
-        body: formData
+        body: formData,
       })
       .then(response => response.text())
-      .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
+      .then(text => {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('status').textContent = text;
       })
       .catch(err => {
         document.getElementById('spinner').style.display = 'none';
@@ -87,7 +78,6 @@
 
           if (distance <= maxDistanceMeters) {
             document.getElementById('status').textContent = 'Location verified. Submitting check-in...';
-            document.getElementById('spinner').style.display = 'block';
             submitCheckIn(uid, lat.toFixed(6), lng.toFixed(6));
           } else {
             document.getElementById('status').textContent = '❌ You are not on school grounds.';
@@ -102,7 +92,9 @@
       );
     }
 
-    document.addEventListener('DOMContentLoaded', verifyLocation);
+    document.addEventListener('DOMContentLoaded', () => {
+      verifyLocation();
+    });
   </script>
 </body>
 </html>
