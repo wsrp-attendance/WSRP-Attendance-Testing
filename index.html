@@ -1,52 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Check-In</title>
+  <title>WSRP Student and Mentor Check-In</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    .spinner {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 5px solid #ccc;
+      border-top-color: #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <h2>WSRP STUDENT/Mentor Check-In-Hopefully</h2>
-  <p id="status">Getting location...</p>
+  <h2>WSRP Student/Mentor Check-In</h2>
+  <p id="status">Checking your location...</p>
+  <div class="spinner" id="spinner"></div>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwTzllad6I0TkaIPRb0Thju5f3JeR5eAp7_xoXeoAXHdKyYnQ8DPbBr-AJjpMrXJTn5/exec';
     const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwTzllad6I0TkaIPRb0Thju5f3JeR5eAp7_xoXeoAXHdKyYnQ8DPbBr-AJjpMrXJTn5/exec';
 
-    function postCheckIn(lat, lng) {
+    const schoolLat = 42.06099;
+    const schoolLng = -87.94404;
+    const maxDistanceMeters = 100;
+
+    function toRad(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function submitCheckIn(uid, latitude, longitude) {
       const formData = new FormData();
       formData.append('uid', uid);
-      formData.append('latitude', lat);
-      formData.append('longitude', lng);
+      formData.append('latitude', latitude);
+      formData.append('longitude', longitude);
 
-     fetch(webAppUrl, {
-  method: 'POST',
-  body: formData,
-})
-.then(response => response.text())
-.then(text => {
-  document.open();
-  document.write('<h2>' + text + '</h2>');
-  document.close();
-})
-.catch(err => {
-  document.getElementById('spinner').style.display = 'none';
-  document.getElementById('status').textContent = '❌ Error: ' + err.message;
-});
+      fetch(webAppUrl, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(err => {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('status').textContent = '❌ Error: ' + err.message;
+      });
     }
 
-    if (navigator.geolocation) {
+    function verifyLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById('status').textContent = 'Geolocation not supported.';
+        document.getElementById('spinner').style.display = 'none';
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         position => {
-          const lat = position.coords.latitude.toFixed(6);
-          const lng = position.coords.longitude.toFixed(6);
-          postCheckIn(lat, lng);
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const distance = haversine(lat, lng, schoolLat, schoolLng);
+
+          if (distance <= maxDistanceMeters) {
+            document.getElementById('status').textContent = 'Location verified. Submitting check-in...';
+            document.getElementById('spinner').style.display = 'block';
+            submitCheckIn(uid, lat.toFixed(6), lng.toFixed(6));
+          } else {
+            document.getElementById('status').textContent = '❌ You are not on school grounds.';
+            document.getElementById('spinner').style.display = 'none';
+          }
         },
         error => {
-          document.getElementById('status').textContent = '❌ Unable to get location.';
-        }
+          document.getElementById('spinner').style.display = 'none';
+          document.getElementById('status').textContent = '❌ Location access denied or unavailable.';
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
-    } else {
-      document.getElementById('status').textContent = '❌ Geolocation not supported.';
     }
+
+    document.addEventListener('DOMContentLoaded', verifyLocation);
   </script>
 </body>
 </html>
