@@ -29,7 +29,7 @@
 
     <script>
       const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbzmn0XCdPt9-cw7VxEiN2lvxd4vbAkR8bKQ81BVabaugH_8cvsxUVWUZJZGBfX6AgSqmg/exec';
+      const webAppUrl = 'YOUR_WEB_APP_URL_HERE'; // <- Replace this with your actual web app URL
 
       const schoolLat = 42.06099;
       const schoolLng = -87.94404;
@@ -60,13 +60,10 @@
         fetch(webAppUrl, {
           method: 'POST',
           body: formData,
-          credentials: 'include'
         })
         .then(response => response.text())
-        .then(html => {
-          document.open();
-          document.write(html);
-          document.close();
+        .then(text => {
+          document.body.innerHTML = `<h3>${text}</h3>`;
         })
         .catch(err => {
           document.getElementById('spinner').style.display = 'none';
