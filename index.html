@@ -17,17 +17,20 @@
       formData.append('latitude', lat);
       formData.append('longitude', lng);
 
-      fetch(webAppUrl, {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.text())
-      .then(response => {
-        document.getElementById('status').textContent = response;
-      })
-      .catch(err => {
-        document.getElementById('status').textContent = '❌ Error: ' + err.message;
-      });
+     fetch(webAppUrl, {
+  method: 'POST',
+  body: formData,
+})
+.then(response => response.text())
+.then(text => {
+  document.open();
+  document.write('<h2>' + text + '</h2>');
+  document.close();
+})
+.catch(err => {
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('status').textContent = '❌ Error: ' + err.message;
+});
     }
 
     if (navigator.geolocation) {
