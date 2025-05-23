@@ -31,6 +31,7 @@
 
     <script>
       const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
+      const webAppUrl = '<?= webAppUrl ?>';  // injected by Apps Script
 
       const schoolLat = 42.06099;
       const schoolLng = -87.94404;
@@ -58,25 +59,26 @@
         formData.append('latitude', latitude);
         formData.append('longitude', longitude);
 
-        fetch('', { // Automatically submits to doPost
+        fetch(webAppUrl, {
           method: 'POST',
           body: formData,
         })
-        .then(response => response.text())
-        .then(html => {
-          document.open();
-          document.write(html);
-          document.close();
-        })
-        .catch(err => {
-          document.getElementById('spinner').style.display = 'none';
-          document.getElementById('status').textContent = '❌ Error: ' + err.message;
-        });
+          .then(response => response.text())
+          .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(err => {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('status').textContent = '❌ Error: ' + err.message;
+          });
       }
 
       function verifyLocation() {
         if (!navigator.geolocation) {
           document.getElementById('status').textContent = 'Geolocation not supported.';
+          document.getElementById('spinner').style.display = 'none';
           return;
         }
 
