@@ -32,7 +32,12 @@
     <div id="spinner" class="spinner"></div>
     <p id="status">Getting your location...</p>
 
-    <form id="checkinForm" method="POST" style="display:none">
+    <!-- FORM SUBMITS TO YOUR SCRIPT URL -->
+    <form
+      id="checkinForm"
+      method="POST"
+      action="https://script.google.com/macros/s/AKfycbzmn0XCdPt9-cw7VxEiN2lvxd4vbAkR8bKQ81BVabaugH_8cvsxUVWUZJZGBfX6AgSqmg/exec"
+    >
       <input type="hidden" name="uid" id="uid">
       <input type="hidden" name="latitude" id="lat">
       <input type="hidden" name="longitude" id="lng">
