@@ -29,7 +29,7 @@
 
     <script>
       const uid = 'UID-' + Math.random().toString(36).substring(2, 10);
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbzmn0XCdPt9-cw7VxEiN2lvxd4vbAkR8bKQ81BVabaugH_8cvsxUVWUZJZGBfX6AgSqmg/exec'; // <- Replace this with your actual web app URL
+      const webAppUrl = 'https://script.google.com/macros/s/AKfycbzmn0XCdPt9-cw7VxEiN2lvxd4vbAkR8bKQ81BVabaugH_8cvsxUVWUZJZGBfX6AgSqmg/exec';
 
       const schoolLat = 42.06099;
       const schoolLng = -87.94404;
@@ -40,7 +40,7 @@
       }
 
       function haversine(lat1, lon1, lat2, lon2) {
-        const R = 6371000;
+        const R = 6371000; // meters
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
         const a =
@@ -59,11 +59,12 @@
 
         fetch(webAppUrl, {
           method: 'POST',
-          body: formData,
+          body: formData
         })
         .then(response => response.text())
         .then(text => {
-          document.body.innerHTML = `<h3>${text}</h3>`;
+          document.getElementById('status').textContent = text; // Expecting just "OK"
+          document.getElementById('spinner').style.display = 'none';
         })
         .catch(err => {
           document.getElementById('spinner').style.display = 'none';
@@ -86,7 +87,6 @@
 
             if (distance <= maxDistanceMeters) {
               document.getElementById('status').textContent = 'Location verified. Submitting check-in...';
-              document.getElementById('spinner').style.display = 'block';
               submitCheckIn(uid, lat.toFixed(6), lng.toFixed(6));
             } else {
               document.getElementById('status').textContent = '❌ You are not on school grounds.';
